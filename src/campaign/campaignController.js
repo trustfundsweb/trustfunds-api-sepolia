@@ -79,7 +79,8 @@ const createCampaign = async (req, res) => {
       console.log(response.error);
       return new CustomErrorResponse(
         res,
-        "Something went wrong while writing blockchain transaction.",
+        response.error ||
+          "Something went wrong while writing blockchain transaction.",
         StatusCodes.BAD_REQUEST
       );
     }

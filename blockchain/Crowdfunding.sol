@@ -32,7 +32,7 @@ contract Crowdfunding {
     uint256 _deadline,
     uint256[] memory milestoneDeadlines,
     uint256[] memory milestoneCompletionPercentages
-  ) public payable {
+  ) public {
     require(_targetAmount > 0, "Target amount must be greater than zero");
     require(_deadline > block.timestamp, "Deadline must be in the future");
 

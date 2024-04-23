@@ -120,7 +120,7 @@
 		],
 		"name": "createCampaign",
 		"outputs": [],
-		"stateMutability": "payable",
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{

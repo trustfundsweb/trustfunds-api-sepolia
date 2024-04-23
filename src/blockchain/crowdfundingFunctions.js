@@ -1,4 +1,5 @@
-const { contract, senderAddress } = require("./connectWeb3");
+const { parseEther } = require("ethers");
+const { contract, signer, senderAddress } = require("./connectWeb3");
 
 // Function to create a campaign
 async function createCampaignFunction(
@@ -9,19 +10,25 @@ async function createCampaignFunction(
   milestones
 ) {
   try {
-    console.log({ mongoId, recipient, targetAmount, deadline, milestones });
-    const result = await contract.methods
-      .createCampaign(
-        mongoId?.toString(),
-        recipient,
-        targetAmount,
-        deadline,
-        milestones.deadlines,
-        milestones.completionPercentages
-      )
-      .send({ from: senderAddress, gas: "5000000" });
-
-    return { success: true, transactionHash: result.transactionHash };
+    const contractWithSigner = contract.connect(signer);
+    console.log({
+      mongoId: mongoId.toString(),
+      recipient,
+      targetAmount: parseEther(targetAmount.toString()),
+      deadline,
+      milestones,
+    });
+    const result = await contractWithSigner.createCampaign(
+      mongoId?.toString(),
+      recipient,
+      parseEther(targetAmount.toString()),
+      deadline,
+      milestones.deadlines,
+      milestones.completionPercentages
+    );
+    console.log(result);
+    await result.wait();
+    return { success: true, transactionHash: result.hash };
   } catch (error) {
     return { success: false, error: error.message };
   }
@@ -30,7 +37,8 @@ async function createCampaignFunction(
 // Function to contribute to a campaign
 async function contributeToCampaignFunction(mongoId, value) {
   try {
-    const result = await contract.methods
+    const contractWithSigner = contract.connect(signer);
+    const result = await contractWithSigner
       .contributeToCampaign(mongoId)
       .send({ value: value, from: senderAddress, gas: "5000000" });
 

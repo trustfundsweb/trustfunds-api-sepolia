@@ -9,7 +9,7 @@
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
     "test-w": "jest --watchAll",
-    "buildstart": "concurrently \\'ganache-cli --host '172.0.0.1' --port 7545 --networkId 5777\\' \\'npm start\\'"
+    "blockchain": "node blockchain/deploy.js"
   },
   "keywords": [],
   "author": "",
