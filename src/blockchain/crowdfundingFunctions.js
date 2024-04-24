@@ -77,10 +77,8 @@ async function finalizeMilestoneAndDisburseFundsFunction(mongoId) {
 // Function to get campaign details
 async function getCampaignDetailsFunction(mongoId) {
   try {
-    const result = await contract.methods.getCampaignDetails(mongoId).call();
-    console.log("getCampaignDetailsFunction");
-    console.log(result);
-
+    const contractWithSigner = contract.connect(signer);
+    const result = await contractWithSigner.getCampaignDetails(mongoId)
     const campaignDetails = {
       recipient: result[0],
       targetAmount: result[1].toString(),
@@ -94,9 +92,6 @@ async function getCampaignDetailsFunction(mongoId) {
         reached: milestone["2"],
       })),
     };
-    console.log("filtered output");
-    console.log(campaignDetails);
-
     return { success: true, campaignDetails };
   } catch (error) {
     return { success: false, error: error.message };

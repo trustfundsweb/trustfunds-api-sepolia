@@ -87,7 +87,7 @@ const createCampaign = async (req, res) => {
 
     return new SuccessResponse(
       res,
-      `Campaign created successfully and smart contract initiated! Transaction Hash: ${response.transactionHash}`,
+      `Campaign created and smart contract modified successfully! Transaction Hash: ${response.transactionHash}`,
       newCampaign
     );
   } catch (err) {
@@ -177,15 +177,22 @@ const getCampaignById = async (req, res) => {
   }
 };
 
-const getBlockchainCampaignById = async () => {
+const getCampaignBlockchainDetails = async (req, res) => {
   const { id } = req.params;
   if (!id) return new ServerErrorResponse(res);
   const response = await getCampaignDetailsFunction(id);
-  return new SuccessResponse(
-    res,
-    "Campaign fetched successfully!",
-    response.campaignDetails
-  );
+  if (response.success)
+    return new SuccessResponse(
+      res,
+      "Campaign details fetched from blockchain successfully!",
+      response.campaignDetails
+    );
+  else
+    return new CustomErrorResponse(
+      res,
+      response.error || "Failed to fetch data from the contract.",
+      StatusCodes.NOT_FOUND
+    );
 };
 
 const updateCampaign = async (req, res) => {
@@ -265,31 +272,6 @@ const searchForCampaign = async (req, res) => {
   }
 };
 
-const getMessagesById = async (req, res) => {
-  try {
-    const { slug } = req.params;
-    if (!slug) return new BadRequestErrorResponse(res, "Campaign not present!");
-    const campaign = await campaignModel
-      .findOne({ slug })
-      .populate("messages.sender");
-    if (!campaign)
-      return new CustomErrorResponse(
-        res,
-        "Campaign Invalid",
-        StatusCodes.BAD_REQUEST
-      );
-
-    return new SuccessResponse(
-      res,
-      "Action completed successfully!",
-      campaign.messages
-    );
-  } catch (err) {
-    console.error(err.message, err.status || StatusCodes.INTERNAL_SERVER_ERROR);
-    return new ServerErrorResponse(res);
-  }
-};
-
 module.exports = {
   getAllCampaigns,
   getCausesList,
@@ -297,7 +279,7 @@ module.exports = {
   getUserCampaigns,
   getUserCampaign,
   getCampaignById,
-  getBlockchainCampaignById,
+  getCampaignBlockchainDetails,
   updateCampaign,
   deleteCampaign,
   makeDonation,
