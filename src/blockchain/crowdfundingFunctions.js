@@ -10,14 +10,14 @@ async function interactWithContract(method, ...args) {
     return {
       success: true,
       transactionHash: result.hash || result.transactionHash,
-      // data: result
+      data: result
     };
   } catch (error) {
     return { success: false, error: error.message };
   }
 }
 
-async function createCampaign(
+async function createCampaignFunction(
   mongoId,
   recipient,
   targetAmount,
@@ -36,18 +36,18 @@ async function createCampaign(
   return result;
 }
 
-async function contributeToCampaign(mongoId, value) {
+async function contributeToCampaignFunction(mongoId, value) {
   const args = [mongoId, value, senderAddress];
   const result = interactWithContract("contributeToCampaign", ...args);
   return result;
 }
 
-async function vote(mongoId) {
+async function voteFunction(mongoId) {
   const result = interactWithContract("vote", mongoId);
   return result;
 }
 
-async function finalizeMilestoneAndDisburseFunds(mongoId) {
+async function finalizeMilestoneAndDisburseFundsFunction(mongoId) {
   const result = interactWithContract(
     "finalizeMilestoneAndDisburseFunds",
     mongoId
@@ -55,7 +55,7 @@ async function finalizeMilestoneAndDisburseFunds(mongoId) {
   return result;
 }
 
-async function getCampaignDetails(mongoId) {
+async function getCampaignDetailsFunction(mongoId) {
   const result = await interactWithContract("getCampaignDetails", mongoId);
   if (result.success) {
     const [
@@ -66,7 +66,7 @@ async function getCampaignDetails(mongoId) {
       completed,
       numberOfContributors,
       milestones,
-    ] = result.campaignDetails;
+    ] = result.data;
     const formattedMilestones = milestones.map((milestone) => ({
       deadline: milestone[0].toString(),
       completionPercentage: milestone[1].toString(),
@@ -89,9 +89,9 @@ async function getCampaignDetails(mongoId) {
 }
 
 module.exports = {
-  createCampaign,
-  contributeToCampaign,
-  vote,
-  finalizeMilestoneAndDisburseFunds,
-  getCampaignDetails,
+  createCampaignFunction,
+  contributeToCampaignFunction,
+  voteFunction,
+  finalizeMilestoneAndDisburseFundsFunction,
+  getCampaignDetailsFunction,
 };

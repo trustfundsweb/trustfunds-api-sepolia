@@ -261,6 +261,7 @@ const searchForCampaign = async (req, res) => {
         $or: [
           { title: { $regex: new RegExp(q, "i") } },
           { name: { $regex: new RegExp(q, "i") } },
+          { causeType: { $regex: new RegExp(q, "i") } },
         ],
       })
       .exec();
