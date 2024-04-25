@@ -1,115 +1,97 @@
 const { parseEther } = require("ethers");
 const { contract, signer, senderAddress } = require("./connectWeb3");
 
-// Function to create a campaign
-async function createCampaignFunction(
+// blockchain interaction function
+async function interactWithContract(method, ...args) {
+  try {
+    const contractWithSigner = contract.connect(signer);
+    const result = await contractWithSigner[method](...args);
+    console.log(result);
+    return {
+      success: true,
+      transactionHash: result.hash || result.transactionHash,
+      // data: result
+    };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+async function createCampaign(
   mongoId,
   recipient,
   targetAmount,
   deadline,
   milestones
 ) {
-  try {
-    const contractWithSigner = contract.connect(signer);
-    console.log({
-      mongoId: mongoId.toString(),
+  const args = [
+    mongoId?.toString(),
+    recipient,
+    parseEther(targetAmount.toString()),
+    deadline,
+    milestones.deadlines,
+    milestones.completionPercentages,
+  ];
+  const result = interactWithContract("createCampaign", ...args);
+  return result;
+}
+
+async function contributeToCampaign(mongoId, value) {
+  const args = [mongoId, value, senderAddress];
+  const result = interactWithContract("contributeToCampaign", ...args);
+  return result;
+}
+
+async function vote(mongoId) {
+  const result = interactWithContract("vote", mongoId);
+  return result;
+}
+
+async function finalizeMilestoneAndDisburseFunds(mongoId) {
+  const result = interactWithContract(
+    "finalizeMilestoneAndDisburseFunds",
+    mongoId
+  );
+  return result;
+}
+
+async function getCampaignDetails(mongoId) {
+  const result = await interactWithContract("getCampaignDetails", mongoId);
+  if (result.success) {
+    const [
       recipient,
-      targetAmount: parseEther(targetAmount.toString()),
+      targetAmount,
       deadline,
+      totalRaised,
+      completed,
+      numberOfContributors,
       milestones,
-    });
-    const result = await contractWithSigner.createCampaign(
-      mongoId?.toString(),
-      recipient,
-      parseEther(targetAmount.toString()),
-      deadline,
-      milestones.deadlines,
-      milestones.completionPercentages
-    );
-    console.log(result);
-    await result.wait();
-    return { success: true, transactionHash: result.hash };
-  } catch (error) {
-    return { success: false, error: error.message };
-  }
-}
-
-// Function to contribute to a campaign
-async function contributeToCampaignFunction(mongoId, value) {
-  try {
-    const contractWithSigner = contract.connect(signer);
-    const result = await contractWithSigner
-      .contributeToCampaign(mongoId)
-      .send({ value: value, from: senderAddress, gas: "5000000" });
-
-    return { success: true, transactionHash: result.transactionHash };
-  } catch (error) {
-    return { success: false, error: error.message };
-  }
-}
-
-// Function to vote on a campaign
-async function voteFunction(mongoId) {
-  try {
-    const result = await contract.methods
-      .vote(mongoId)
-      .send({ from: senderAddress, gas: "5000000" });
-
-    return { success: true, transactionHash: result.transactionHash };
-  } catch (error) {
-    return { success: false, error: error.message };
-  }
-}
-
-// Function to finalize milestone and disburse funds
-async function finalizeMilestoneAndDisburseFundsFunction(mongoId) {
-  try {
-    const result = await contract.methods
-      .finalizeMilestoneAndDisburseFunds(mongoId)
-      .send({ from: senderAddress, gas: "5000000" });
-
-    return { success: true, transactionHash: result.transactionHash };
-  } catch (error) {
-    return { success: false, error: error.message };
-  }
-}
-
-// Function to get campaign details
-async function getCampaignDetailsFunction(mongoId) {
-  try {
-    const contractWithSigner = contract.connect(signer);
-    const result = await contractWithSigner.getCampaignDetails(mongoId)
-    const campaignDetails = {
-      recipient: result[0],
-      targetAmount: result[1].toString(),
-      deadline: result[2].toString(),
-      totalRaised: result[3].toString(),
-      completed: result[4],
-      numberOfContributors: result[5].toString(),
-      milestones: result[6].map((milestone) => ({
-        deadline: milestone["0"].toString(),
-        completionPercentage: milestone["1"].toString(),
-        reached: milestone["2"],
-      })),
+    ] = result.campaignDetails;
+    const formattedMilestones = milestones.map((milestone) => ({
+      deadline: milestone[0].toString(),
+      completionPercentage: milestone[1].toString(),
+      reached: milestone[2],
+    }));
+    return {
+      ...result,
+      data: {
+        recipient,
+        targetAmount: targetAmount.toString(),
+        deadline: deadline.toString(),
+        totalRaised: totalRaised.toString(),
+        completed,
+        numberOfContributors: numberOfContributors.toString(),
+        milestones: formattedMilestones,
+      },
     };
-    return { success: true, campaignDetails };
-  } catch (error) {
-    return { success: false, error: error.message };
   }
+  return result;
 }
-
-// Example usage:
-// const targetAmount = 1000000000000000000; // 1 ETH in wei
-// const deadline = Math.floor(Date.now() / 1000) + 3600; // 1 hour from now in Unix timestamp
-// const milestones = {
-// deadlines: [deadline + 3600, deadline + 7200], // Two hours and three hours from now
-// completionPercentages: [50, 100] // 50% and 100% completion
-// };
 
 module.exports = {
-  createCampaignFunction,
-  contributeToCampaignFunction,
-  voteFunction,
-  finalizeMilestoneAndDisburseFundsFunction,
-  getCampaignDetailsFunction,
+  createCampaign,
+  contributeToCampaign,
+  vote,
+  finalizeMilestoneAndDisburseFunds,
+  getCampaignDetails,
 };

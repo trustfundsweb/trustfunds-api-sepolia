@@ -185,7 +185,7 @@ const getCampaignBlockchainDetails = async (req, res) => {
     return new SuccessResponse(
       res,
       "Campaign details fetched from blockchain successfully!",
-      response.campaignDetails
+      response.data
     );
   else
     return new CustomErrorResponse(
