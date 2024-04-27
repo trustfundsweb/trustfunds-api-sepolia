@@ -90,6 +90,43 @@ const login = async (req, res) => {
   }
 };
 
+const changePassword = async (req, res) => {
+  try {
+    const { body } = req;
+    const { id } = req.user;
+    // validating user data
+    const e = loginValidation(body);
+    if (e.error) return new ValidationErrorResponse(res, e.error.message);
+    // checking if user present
+    const { password, newPassword } = body;
+    const user = await userModel.findOne({ id });
+    if (!user)
+      return new CustomErrorResponse(
+        res,
+        "User not found. Login and try again later!",
+        StatusCodes.CONFLICT
+      );
+
+    // checking password
+    const isPasswordValid = await comparePassword(password, user.password);
+    if (!isPasswordValid)
+      return new CustomErrorResponse(
+        res,
+        "Wrong password. Please enter correct credentials!",
+        StatusCodes.BAD_REQUEST
+      );
+
+    // hashing password & saving user
+    const hashedPassword = await hashPassword(newPassword);
+    const newUser = new userModel({ ...user, password: hashedPassword });
+    await newUser.save();
+    return new SuccessResponse(res, "Password changed successfully!");
+  } catch (err) {
+    console.log(err.message, err.status || StatusCodes.INTERNAL_SERVER_ERROR);
+    return new ServerErrorResponse(res);
+  }
+};
+
 const logout = async (req, res) => {
   clearCookie(res, "token");
   res.status(200).json({ message: "User logged out successfully!" });
@@ -139,6 +176,7 @@ const linkMetamask = async (req, res) => {
 module.exports = {
   register,
   login,
+  changePassword,
   logout,
   user,
   linkMetamask,
