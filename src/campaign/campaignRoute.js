@@ -8,7 +8,6 @@ const {
   getCampaignById,
   updateCampaign,
   deleteCampaign,
-  makeDonation,
   searchForCampaign,
   getUserCampaign,
   getCampaignBlockchainDetails,
@@ -27,6 +26,5 @@ router.route("/:id/blockchain").get(getCampaignBlockchainDetails);
 router.route("/:id/fund").post(verifyToken, fundCampaign);
 router.route("/:id").put(verifyToken, updateCampaign);
 router.route("/:id").delete(verifyToken, deleteCampaign);
-router.route("/:id/donate").post(verifyToken, makeDonation);
 
 module.exports = router;

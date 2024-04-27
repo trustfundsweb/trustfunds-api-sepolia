@@ -18,6 +18,7 @@ const {
   getCampaignDetailsFunction,
   contributeToCampaignFunction,
 } = require("../blockchain/crowdfundingFunctions");
+const { addTransaction, actions } = require("../debug/transactionFunctions");
 
 const getAllCampaigns = async (req, res) => {
   try {
@@ -86,6 +87,9 @@ const createCampaign = async (req, res) => {
       );
     }
 
+    // recording transaction
+    addTransaction(user.id, response.transactionHash, actions.CREATED);
+
     return new SuccessResponse(
       res,
       `Campaign created and smart contract modified successfully! Transaction Hash: ${response.transactionHash}`,
@@ -102,7 +106,7 @@ const fundCampaign = async (req, res) => {
   try {
     const userId = req.user.id;
     const { value, sendersAddress } = req.body;
-    console.log({value, sendersAddress})
+    console.log({ value, sendersAddress });
     if (!value || !sendersAddress)
       return new CustomErrorResponse(
         res,
@@ -121,6 +125,10 @@ const fundCampaign = async (req, res) => {
         result.error || "Something went wrong while confirming",
         StatusCodes.INTERNAL_SERVER_ERROR
       );
+
+    // recording transaction
+    addTransaction(userId, result.transactionHash, actions.FUND);
+
     return new SuccessResponse(
       res,
       "Campaign contribution verified successfully."
@@ -282,10 +290,6 @@ const deleteCampaign = async (req, res) => {
   }
 };
 
-const makeDonation = async (req, res) => {
-  res.status(200).json({ message: "makeDonation" });
-};
-
 const searchForCampaign = async (req, res) => {
   const { q } = req.query;
   console.log(q);
@@ -318,6 +322,5 @@ module.exports = {
   fundCampaign,
   updateCampaign,
   deleteCampaign,
-  makeDonation,
   searchForCampaign,
 };

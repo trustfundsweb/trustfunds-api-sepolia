@@ -5,7 +5,6 @@ const { contract, signer, senderAddress } = require("./connectWeb3");
 async function interactWithContract(method, ...args) {
   try {
     const contractWithSigner = contract.connect(signer);
-    console.log(args)
     const result = await contractWithSigner[method](...args);
     console.log(result);
     return {

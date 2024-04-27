@@ -1,19 +1,10 @@
-const { ServerErrorResponse } = require("../shared/error/errorResponse");
-const SuccessResponse = require("../shared/success/successResponse");
 const {
-  getCampaignDetailsFunction,
-} = require("../blockchain/crowdfundingFunctions");
-
-const getCampaignById = async (req, res) => {
-  const { id } = req.params;
-  if (!id) return new ServerErrorResponse(res);
-  const response = await getCampaignDetailsFunction(id);
-  return new SuccessResponse(
-    res,
-    "Campaign fetched successfully!",
-    response.campaignDetails
-  );
-};
+  ServerErrorResponse,
+  AuthorizationErrorResponse,
+  CustomErrorResponse,
+} = require("../shared/error/errorResponse");
+const SuccessResponse = require("../shared/success/successResponse");
+const { transactionModel } = require("../debug/transactionsModel");
 
 const getContractAddress = async (req, res) => {
   return new SuccessResponse(res, "Contract Address fetched successfully!", {
@@ -21,4 +12,36 @@ const getContractAddress = async (req, res) => {
   });
 };
 
-module.exports = { getCampaignById, getContractAddress };
+const getTransactions = async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId)
+      return new AuthorizationErrorResponse(
+        res,
+        "Sign in and try again later."
+      );
+
+    const transactions = await transactionModel
+      .find({ userId })
+      .sort({ timestamp: "desc" })
+      .exec();
+
+    if (!transactions)
+      return new CustomErrorResponse(
+        res,
+        "Something went wrong while fetching transactions.",
+        StatusCodes.BAD_REQUEST
+      );
+
+    return new SuccessResponse(
+      res,
+      "Messages fetched successfully!",
+      transactions
+    );
+  } catch (err) {
+    console.err(err);
+    return new ServerErrorResponse(res);
+  }
+};
+
+module.exports = { getContractAddress, getTransactions };
