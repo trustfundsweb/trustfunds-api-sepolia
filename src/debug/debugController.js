@@ -4,7 +4,7 @@ const {
   CustomErrorResponse,
 } = require("../shared/error/errorResponse");
 const SuccessResponse = require("../shared/success/successResponse");
-const { transactionModel } = require("../debug/transactionsModel");
+const { transactionsModel } = require("../debug/transactionsModel");
 
 const getContractAddress = async (req, res) => {
   return new SuccessResponse(res, "Contract Address fetched successfully!", {
@@ -21,7 +21,7 @@ const getTransactions = async (req, res) => {
         "Sign in and try again later."
       );
 
-    const transactions = await transactionModel
+    const transactions = await transactionsModel
       .find({ userId })
       .sort({ timestamp: "desc" })
       .exec();
@@ -39,7 +39,7 @@ const getTransactions = async (req, res) => {
       transactions
     );
   } catch (err) {
-    console.err(err);
+    console.error(err);
     return new ServerErrorResponse(res);
   }
 };
