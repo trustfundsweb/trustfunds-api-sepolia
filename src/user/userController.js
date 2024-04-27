@@ -15,6 +15,7 @@ const {
 const { createJwt } = require("./utils/jwt.utils");
 const registerValidation = require("./validations/register-user");
 const loginValidation = require("./validations/login-user");
+const changePasswordValidation = require("./validations/changePassword-user");
 const userModel = require("./userModel");
 
 const register = async (req, res) => {
@@ -95,31 +96,32 @@ const changePassword = async (req, res) => {
     const { body } = req;
     const { id } = req.user;
     // validating user data
-    const e = loginValidation(body);
+    const e = changePasswordValidation(body);
     if (e.error) return new ValidationErrorResponse(res, e.error.message);
     // checking if user present
     const { password, newPassword } = body;
-    const user = await userModel.findOne({ id });
+    const user = await userModel.findById(id);
+    console.log(user);
     if (!user)
       return new CustomErrorResponse(
         res,
         "User not found. Login and try again later!",
         StatusCodes.CONFLICT
       );
-
     // checking password
     const isPasswordValid = await comparePassword(password, user.password);
     if (!isPasswordValid)
       return new CustomErrorResponse(
         res,
         "Wrong password. Please enter correct credentials!",
-        StatusCodes.BAD_REQUEST
+        StatusCodes.CONFLICT
       );
 
     // hashing password & saving user
     const hashedPassword = await hashPassword(newPassword);
-    const newUser = new userModel({ ...user, password: hashedPassword });
-    await newUser.save();
+    user.password = hashedPassword;
+    console.log(user)
+    await user.save();
     return new SuccessResponse(res, "Password changed successfully!");
   } catch (err) {
     console.log(err.message, err.status || StatusCodes.INTERNAL_SERVER_ERROR);
