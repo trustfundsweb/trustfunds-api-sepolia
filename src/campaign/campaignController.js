@@ -16,6 +16,7 @@ const { getMilestoneData } = require("./utils/milestonesData");
 const {
   createCampaignFunction,
   getCampaignDetailsFunction,
+  contributeToCampaignFunction,
 } = require("../blockchain/crowdfundingFunctions");
 
 const getAllCampaigns = async (req, res) => {
@@ -93,6 +94,39 @@ const createCampaign = async (req, res) => {
   } catch (err) {
     console.log(err);
     console.error(err.message, err.status || StatusCodes.INTERNAL_SERVER_ERROR);
+    return new ServerErrorResponse(res);
+  }
+};
+
+const fundCampaign = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { value, sendersAddress } = req.body;
+    console.log({value, sendersAddress})
+    if (!value || !sendersAddress)
+      return new CustomErrorResponse(
+        res,
+        "Invalid inputs for value and sender account address",
+        StatusCodes.BAD_REQUEST
+      );
+
+    const result = await contributeToCampaignFunction(
+      userId,
+      value,
+      sendersAddress
+    );
+    if (!result.success)
+      return new CustomErrorResponse(
+        res,
+        result.error || "Something went wrong while confirming",
+        StatusCodes.INTERNAL_SERVER_ERROR
+      );
+    return new SuccessResponse(
+      res,
+      "Campaign contribution verified successfully."
+    );
+  } catch (err) {
+    console.error(err);
     return new ServerErrorResponse(res);
   }
 };
@@ -281,6 +315,7 @@ module.exports = {
   getUserCampaign,
   getCampaignById,
   getCampaignBlockchainDetails,
+  fundCampaign,
   updateCampaign,
   deleteCampaign,
   makeDonation,

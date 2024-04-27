@@ -5,6 +5,7 @@ const { contract, signer, senderAddress } = require("./connectWeb3");
 async function interactWithContract(method, ...args) {
   try {
     const contractWithSigner = contract.connect(signer);
+    console.log(args)
     const result = await contractWithSigner[method](...args);
     console.log(result);
     return {
@@ -13,6 +14,7 @@ async function interactWithContract(method, ...args) {
       data: result
     };
   } catch (error) {
+    console.log(error)
     return { success: false, error: error.message };
   }
 }
@@ -36,8 +38,8 @@ async function createCampaignFunction(
   return result;
 }
 
-async function contributeToCampaignFunction(mongoId, value) {
-  const args = [mongoId, value, senderAddress];
+async function contributeToCampaignFunction(mongoId, value, senderAddress) {
+  const args = [mongoId, senderAddress, parseEther(value)];
   const result = interactWithContract("contributeToCampaign", ...args);
   return result;
 }

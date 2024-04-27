@@ -11,7 +11,8 @@ const {
   makeDonation,
   searchForCampaign,
   getUserCampaign,
-  getCampaignBlockchainDetails
+  getCampaignBlockchainDetails,
+  fundCampaign
 } = require("./campaignController");
 const verifyToken = require("../middleware/verifyToken");
 
@@ -23,6 +24,7 @@ router.route("/user/:id").get(verifyToken, getUserCampaign);
 router.route("/search").get(searchForCampaign);
 router.route("/:id").get(getCampaignById);
 router.route("/:id/blockchain").get(getCampaignBlockchainDetails);
+router.route("/:id/fund").post(verifyToken, fundCampaign);
 router.route("/:id").put(verifyToken, updateCampaign);
 router.route("/:id").delete(verifyToken, deleteCampaign);
 router.route("/:id/donate").post(verifyToken, makeDonation);
