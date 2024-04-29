@@ -1,4 +1,4 @@
-const transactionsModel = require("./transactionsModel");
+const { transactionsModel } = require("./transactionsModel");
 
 const actions = {
   CREATED: "Campaign creation",
