@@ -7,6 +7,7 @@ class SuccessResponse {
       message: message,
     };
 
+    console.log(result)
     if (result) response.result = result;
     res.status(StatusCodes.OK).send(response);
   }
