@@ -32,6 +32,10 @@ const campaignSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  balance: {
+    type: Number,
+    default: 0.0,
+  },
   endDate: {
     type: String,
     required: true,
@@ -47,7 +51,7 @@ const campaignSchema = new mongoose.Schema({
   },
   creatorAddress: {
     type: String,
-    required: true
+    required: true,
   },
   causeType: {
     type: String,

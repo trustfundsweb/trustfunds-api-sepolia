@@ -54,7 +54,7 @@ const createCampaign = async (req, res) => {
     let tempStory = body.story;
     tempStory = tempStory.filter((para) => para !== "");
 
-    const recipient = body.creatorAddress
+    const recipient = body.creatorAddress;
     const newCampaign = new campaignModel({
       ...body,
       story: tempStory,
@@ -108,6 +108,15 @@ const createCampaign = async (req, res) => {
 const fundCampaign = async (req, res) => {
   try {
     const userId = req.user.id;
+    const campaignId = req.params.id;
+    console.log("campaign just funded", campaignId);
+    if (!campaignId)
+      return new CustomErrorResponse(
+        res,
+        "Campaign not found!",
+        StatusCodes.NOT_FOUND
+      );
+
     const { value, sendersAddress } = req.body;
     console.log({ value, sendersAddress });
     if (!value || !sendersAddress)
@@ -118,8 +127,8 @@ const fundCampaign = async (req, res) => {
       );
 
     const result = await contributeToCampaignFunction(
-      userId,
-      value,
+      campaignId,
+      value.toString(),
       sendersAddress
     );
     if (!result.success)
