@@ -54,13 +54,15 @@ const createCampaign = async (req, res) => {
     let tempStory = body.story;
     tempStory = tempStory.filter((para) => para !== "");
 
+    const recipient = body.creatorAddress
     const newCampaign = new campaignModel({
       ...body,
       story: tempStory,
       creator: user.id,
-      contractAddress: "address",
     });
+    console.log(newCampaign);
 
+    // save to mongodb
     const saved = await newCampaign.save();
 
     // convert string date to time in seconds
@@ -71,7 +73,7 @@ const createCampaign = async (req, res) => {
 
     const response = await createCampaignFunction(
       mongoId,
-      "0x14B8206f5D5028368D193635e70b6f83B2f1dBBd",
+      recipient,
       goalWei,
       numberFormatDate,
       milestones
@@ -79,6 +81,7 @@ const createCampaign = async (req, res) => {
     console.log(response);
     if (!response.success) {
       console.log(response.error);
+      await deleteCampaignWithId(saved._id);
       return new CustomErrorResponse(
         res,
         response.error ||
@@ -271,19 +274,27 @@ const updateCampaign = async (req, res) => {
   }
 };
 
+const deleteCampaignWithId = async (id) => {
+  if (!id) throw new Error("Campaign not found. Id is missing.");
+  const campaign = await campaignModel.deleteOne({ _id: id });
+  if (campaign.deletedCount === 0) return false;
+  return true;
+};
+
 const deleteCampaign = async (req, res) => {
   try {
     const id = req.params;
     if (!id)
       return new BadRequestErrorResponse(res, "Campaign id not present!");
 
-    const campaign = await campaignModel.deleteOne({ _id: id });
-    if (campaign.deletedCount === 0)
+    const success = deleteCampaignWithId(id);
+    if (!success)
       return new CustomErrorResponse(
         res,
         "The campaign you requested does not exist!",
         StatusCodes.BAD_REQUEST
       );
+    else return new SuccessResponse(res, "Campaign deleted successfully!");
   } catch (err) {
     console.log(err.message, err.status || StatusCodes.INTERNAL_SERVER_ERROR);
     return new ServerErrorResponse(res);

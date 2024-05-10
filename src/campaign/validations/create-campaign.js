@@ -10,6 +10,7 @@ const campaignCreationValidation = (data) => {
     endDate: Joi.string().required(),
     image: Joi.string().uri().required(),
     causeType: Joi.string().required(),
+    creatorAddress: Joi.string().required(),
     milestones: Joi.array()
       .items(
         Joi.object({

@@ -45,14 +45,14 @@ const campaignSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
+  creatorAddress: {
+    type: String,
+    required: true
+  },
   causeType: {
     type: String,
     enum: causesList,
     default: "Other",
-    required: true,
-  },
-  contractAddress: {
-    type: String,
     required: true,
   },
   milestones: [
