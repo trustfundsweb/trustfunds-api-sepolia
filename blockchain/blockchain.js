@@ -2,10 +2,7 @@ const { ethers, BaseContract } = require("ethers");
 const fs = require("fs-extra");
 
 console.log("Started calling blockchain");
-const abi = fs.readFileSync(
-  path.join(__dirname, "Crowdfunding.abi"),
-  "utf-8"
-);
+const abi = fs.readFileSync(path.join(__dirname, "Crowdfunding.abi"), "utf-8");
 
 // Connect to the Ethereum network
 const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);

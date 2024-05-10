@@ -10,10 +10,10 @@ async function interactWithContract(method, ...args) {
     return {
       success: true,
       transactionHash: result.hash || result.transactionHash,
-      data: result
+      data: result,
     };
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return { success: false, error: error.message };
   }
 }

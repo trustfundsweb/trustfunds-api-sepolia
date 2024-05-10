@@ -120,7 +120,7 @@ const changePassword = async (req, res) => {
     // hashing password & saving user
     const hashedPassword = await hashPassword(newPassword);
     user.password = hashedPassword;
-    console.log(user)
+    console.log(user);
     await user.save();
     return new SuccessResponse(res, "Password changed successfully!");
   } catch (err) {

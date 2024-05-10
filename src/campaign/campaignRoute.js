@@ -11,7 +11,7 @@ const {
   searchForCampaign,
   getUserCampaign,
   getCampaignBlockchainDetails,
-  fundCampaign
+  fundCampaign,
 } = require("./campaignController");
 const verifyToken = require("../middleware/verifyToken");
 

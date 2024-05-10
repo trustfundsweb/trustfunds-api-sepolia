@@ -4,7 +4,7 @@ const forumSchema = new mongoose.Schema({
   sender: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-    ref: "User"
+    ref: "User",
   },
   name: {
     type: String,
@@ -13,7 +13,7 @@ const forumSchema = new mongoose.Schema({
   campaign: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-    ref: "Campaign"
+    ref: "Campaign",
   },
   date: {
     type: String,
