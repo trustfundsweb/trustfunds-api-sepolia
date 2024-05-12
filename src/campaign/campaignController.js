@@ -126,6 +126,17 @@ const fundCampaign = async (req, res) => {
         StatusCodes.BAD_REQUEST
       );
 
+    // add the contributor id to campaign module
+    async function addContributorToCampaign(campaignModel, campaignId, userId) {
+      const campaign = await campaignModel.findById(campaignId);
+      let alreadyDonated = campaign.contributors;
+      if (!alreadyDonated) alreadyDonated = [userId];
+      else if (!alreadyDonated.includes(userId)) alreadyDonated.push(userId);
+      campaign.contributors = alreadyDonated;
+      await campaign.save();
+    }
+    addContributorToCampaign(campaignModel, campaignId, userId);
+
     const result = await contributeToCampaignFunction(
       campaignId,
       value.toString(),

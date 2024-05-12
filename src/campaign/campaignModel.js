@@ -75,6 +75,10 @@ const campaignSchema = new mongoose.Schema({
       },
     },
   ],
+  contributors: {
+    type: [String],
+    required: false,
+  },
 });
 
 const campaignModel = mongoose.model("Campaign", campaignSchema);
