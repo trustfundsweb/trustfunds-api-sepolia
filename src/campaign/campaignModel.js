@@ -36,6 +36,10 @@ const campaignSchema = new mongoose.Schema({
     type: Number,
     default: 0.0,
   },
+  backersCount: {
+    type: Number,
+    default: 0,
+  },
   endDate: {
     type: String,
     required: true,

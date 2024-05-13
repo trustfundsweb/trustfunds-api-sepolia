@@ -126,16 +126,17 @@ const fundCampaign = async (req, res) => {
         StatusCodes.BAD_REQUEST
       );
 
-    // add the contributor id to campaign module
-    async function addContributorToCampaign(campaignModel, campaignId, userId) {
-      const campaign = await campaignModel.findById(campaignId);
-      let alreadyDonated = campaign.contributors;
-      if (!alreadyDonated) alreadyDonated = [userId];
-      else if (!alreadyDonated.includes(userId)) alreadyDonated.push(userId);
-      campaign.contributors = alreadyDonated;
-      await campaign.save();
-    }
-    addContributorToCampaign(campaignModel, campaignId, userId);
+    // add the contributor id, count and updated balance to campaign module
+    const campaign = await campaignModel.findById(campaignId);
+    let alreadyDonated = campaign.contributors;
+    if (!alreadyDonated) alreadyDonated = [userId];
+    else if (!alreadyDonated.includes(userId)) alreadyDonated.push(userId);
+    campaign.contributors = alreadyDonated;
+    let newBalance = parseFloat(campaign.balance) + parseFloat(value);
+    if (typeof newBalance === "number") campaign.balance = newBalance;
+    let newCount = campaign.backersCount + 1;
+    if (typeof newCount === "number") campaign.backersCount = newCount;
+    await campaign.save();
 
     const result = await contributeToCampaignFunction(
       campaignId,
@@ -154,7 +155,7 @@ const fundCampaign = async (req, res) => {
 
     return new SuccessResponse(
       res,
-      "Campaign contribution verified successfully."
+      "Campaign contribution verified successfully. Changes will be reflected shortly. Go to profile to view all transactions made by you."
     );
   } catch (err) {
     console.error(err);
