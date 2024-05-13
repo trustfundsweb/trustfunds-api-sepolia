@@ -169,10 +169,10 @@ const getUserCampaigns = async (req, res) => {
 
     const campaigns = await campaignModel.find({ creator: id });
     if (!campaigns || campaigns.length <= 0)
-      return new CustomErrorResponse(
+      return new SuccessResponse(
         res,
-        "The user has not created any campaigns!",
-        StatusCodes.BAD_REQUEST
+        "You have not created any campaigns. Head over to Create Campaign to create your first campaign!",
+        []
       );
 
     return new SuccessResponse(
